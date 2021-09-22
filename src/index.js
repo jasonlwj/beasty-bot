@@ -1,6 +1,6 @@
-import { Client, Intents } from "discord.js";
-import { token } from "./config.js";
-import keepAlive from "./server.js";
+import { Client, Intents, Formatters } from "discord.js";
+import { token,  notifyChannelID, notifyUserID } from "./config.js";
+import { keepAlive } from "./server.js";
 
 // Initialise the Discord client.
 const client = new Client({ 
@@ -11,11 +11,9 @@ const client = new Client({
 	]
 })
 
-// Return the tag (e.g. Koda#2956) of the given user.
-const getUserTag = user => {
-	const { username, discriminator } = user
-	return `${username}#${discriminator}`
-}
+const getBanMessage = user => (
+	`${Formatters.userMention(user.id)} has been banned from the server`
+)
 
 // Event handler for when the client is ready to start working.
 client.on("ready", () => {
@@ -24,13 +22,26 @@ client.on("ready", () => {
 
 // Event handler for when a user has left/been kicked from the guild
 client.on("guildMemberRemove", member => {
-	console.log(`${getUserTag(member.user)} has left the server`)
+	console.log(`${member.user.tag} has left the server`)
 	member.ban()
+
+	const banMessage = getBanMessage(member.user)
+	
+	client.channels
+	.fetch(notifyChannelID)
+	.then(channel => channel.send(banMessage))
+
+	client.users
+	.fetch(notifyUserID)
+	.then(user => {
+		user.createDM().then(channel => channel.send(banMessage))
+	})
 });
 
 // Event handler for when a user is banned from a server.
 client.on("guildBanAdd", ban => {
-	console.log(`${getUserTag(ban.user)} has been banned from the server`)
+	const banLog = `${ban.user.tag} has been banned from the server`
+	console.log(banLog)
 })
 
 // Login to establish a WebSocket connection to Discord.
