@@ -1,6 +1,6 @@
-const { Client, Intents } = require("discord.js")
-const { token } = require("./config")
-const keepAlive = require("./server");
+import { Client, Intents } from "discord.js";
+import { token } from "./config.js";
+import keepAlive from "./server.js";
 
 // Initialise the Discord client.
 const client = new Client({ 
