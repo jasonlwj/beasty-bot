@@ -1,4 +1,4 @@
-import express from "express"
+const express = require("express")
 
 const server = express()
 
@@ -12,4 +12,4 @@ const keepAlive = () => {
 	})
 }
 
-export { keepAlive }
+module.exports = keepAlive

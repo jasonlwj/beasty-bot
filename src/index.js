@@ -1,6 +1,6 @@
-import { Client, Intents, Formatters } from "discord.js";
-import { token,  notifyChannelID, notifyUserID } from "./config.js";
-import { keepAlive } from "./server.js";
+const { Client, Intents, Formatters } = require("discord.js")
+const { token, notifyChannelID, notifyUserID } = require("./config")
+const keepAlive = require("./server")
 
 // Initialise the Discord client.
 const client = new Client({ 
@@ -12,7 +12,7 @@ const client = new Client({
 })
 
 const getBanMessage = user => (
-	`${Formatters.userMention(user.id)} has been banned from the server`
+	`${Formatters.userMention(user.id)} is gone. Reduced to atoms.`
 )
 
 // Event handler for when the client is ready to start working.
@@ -22,21 +22,25 @@ client.on("ready", () => {
 
 // Event handler for when a user has left/been kicked from the guild
 client.on("guildMemberRemove", member => {
-	console.log(`${member.user.tag} has left the server`)
+	console.log(`-----\n${member.user.tag} has left the server`)
 	member.ban()
 
 	const banMessage = getBanMessage(member.user)
 	
 	client.channels
-	.fetch(notifyChannelID)
-	.then(channel => channel.send(banMessage))
+    .fetch(notifyChannelID)
+    .then(channel => channel.send(banMessage))
 
 	client.users
-	.fetch(notifyUserID)
-	.then(user => {
-		user.createDM().then(channel => channel.send(banMessage))
-	})
-});
+    .fetch(notifyUserID)
+    .then(user => {
+      user
+        .createDM()
+        .then(channel => channel.send(banMessage))
+
+      console.log(`DM'd ${user.tag}`)
+    })
+})
 
 // Event handler for when a user is banned from a server.
 client.on("guildBanAdd", ban => {
